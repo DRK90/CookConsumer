@@ -33,7 +33,15 @@ namespace CookConsumer{
                 var username = Environment.GetEnvironmentVariable("DEBUG_USERID");
                 var password = Environment.GetEnvironmentVariable("DEBUG_PASSWORD");
                 connectionString = $"Server={server};Database={database};User Id={username};Password={password};";
+            }else if(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Staging")
+            {
+                var server = Environment.GetEnvironmentVariable("DEV_SERVER");
+                var database = Environment.GetEnvironmentVariable("DEV_DATABASE");
+                var username = Environment.GetEnvironmentVariable("DEV_USERID");
+                var password = Environment.GetEnvironmentVariable("DEV_PASSWORD");
+                connectionString = $"Server={server};Database={database};User Id={username};Password={password};";
             }
+            Console.WriteLine("Connection String: " + connectionString);
 
             var optionsBuilder = new DbContextOptionsBuilder<CookContext>();
             
@@ -110,8 +118,7 @@ namespace CookConsumer{
                 consumer: consumer
             );
 
-            Console.WriteLine(" Press [enter] to exit.");
-            Console.ReadLine();
+            await Task.Delay(Timeout.Infinite);
         }
 
         static async Task ProcessRecipeMessage(RecipeMessage recipeMessage, DbContextOptions<CookContext> options)
@@ -126,7 +133,7 @@ namespace CookConsumer{
             {
                 Title = dto.recipeName,
                 Description = dto.recipeDescription,
-                RecipeTypeId = 1, // For simplicity, assign a default type id (or look up by dto.recipeType)
+                RecipeTypeId = 0, //todo: get the type id from the database
                 Servings = 1,
                 PrepTime = TimeSpan.FromMinutes(dto.recipePrepTime ?? 0),
                 CookTime = TimeSpan.FromMinutes(dto.recipeCookTime ?? 0),
