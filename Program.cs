@@ -97,7 +97,7 @@ namespace CookConsumer{
                             // Push to the left of the list.
                             db.ListLeftPush("recentRecipes", recipeJson);
                             // Trim the list to keep only the first 3 elements.
-                            db.ListTrim("recentRecipes", 0, 2);
+                            db.ListTrim("recentRecipes", 0, 5);
                         }
                     }
 
