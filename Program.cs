@@ -84,7 +84,7 @@ namespace CookConsumer{
                         await ProcessRecipeMessage(recipeMessage, optionsBuilder.Options);
                     }
                     catch (Exception ex){
-                        Console.WriteLine(" [!] Error processing message: " + ex.Message);
+                        Console.WriteLine(" [!] Error processing message: " + ex.ToString());
                     }
 
                     // write to redis.  Even if it fails the db write.
@@ -97,12 +97,12 @@ namespace CookConsumer{
                             // Push to the left of the list.
                             db.ListLeftPush("recentRecipes", recipeJson);
                             // Trim the list to keep only the first 3 elements.
-                            db.ListTrim("recentRecipes", 0, 5);
+                            db.ListTrim("recentRecipes", 0, 5000);
                         }
                     }
 
                     catch (Exception ex){
-                        Console.WriteLine(" [!] Error processing message: " + ex.Message);
+                        Console.WriteLine(" [!] Error processing message: " + ex.ToString());
                     }
                 }
                 catch (Exception ex)
@@ -145,6 +145,33 @@ namespace CookConsumer{
             };
 
             dbContext.Recipes.Add(recipeEntity);
+            await dbContext.SaveChangesAsync(); // Save to generate RecipeId
+
+            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == recipeMessage.Recipe.userId);
+            if (user == null)
+            {
+                Console.WriteLine(" [!] User not found.");
+                return;
+            }
+
+            var userRecipeEntity = new UserRecipe
+            {
+                IdOfUser = recipeMessage.Recipe.userId ?? "",
+                RecipeId = recipeEntity.RecipeId,
+                PermissionLevel = PermissionLevel.Owner
+            };
+            dbContext.UserRecipes.Add(userRecipeEntity);
+            await dbContext.SaveChangesAsync(); // Save to generate RecipeId                
+
+            var recipeRequestEntity = new RecipeRequest
+            {
+                UserId = recipeMessage.Recipe.userId ?? "",
+                RecipeRequestDescription = recipeMessage.RecipeRequestDescription,
+                RecipeRequestDate = DateTime.Now,
+                RequestIpAddress = recipeMessage.RequestIpAddress ?? ""
+            };
+
+            dbContext.RecipeRequests.Add(recipeRequestEntity);
             await dbContext.SaveChangesAsync(); // Save to generate RecipeId
 
             // Process Recipe Steps.
