@@ -10,7 +10,8 @@ using System.Collections.Generic;
 using DotNetEnv;
 using CookConsumer.Models;
 using StackExchange.Redis;
-
+using System.Text.RegularExpressions;
+using CookConsumer.Helpers;
 namespace CookConsumer{
     class Program{
 
@@ -80,8 +81,10 @@ namespace CookConsumer{
                     }
 
                     // Process the recipeMessage and write to the database.
+                    var recipeId = -1;
                     try{
-                        await ProcessRecipeMessage(recipeMessage, optionsBuilder.Options);
+                        recipeId = await ProcessRecipeMessage(recipeMessage, optionsBuilder.Options);
+                        recipeMessage.Recipe.recipeId = recipeId;
                     }
                     catch (Exception ex){
                         Console.WriteLine(" [!] Error processing message: " + ex.ToString());
@@ -121,7 +124,7 @@ namespace CookConsumer{
             await Task.Delay(Timeout.Infinite);
         }
 
-        static async Task ProcessRecipeMessage(RecipeMessage recipeMessage, DbContextOptions<CookContext> options)
+        static async Task<int> ProcessRecipeMessage(RecipeMessage recipeMessage, DbContextOptions<CookContext> options)
         {
             // Map the RecipeReturnDto to our EF Core entities.
             var dto = recipeMessage.Recipe;
@@ -151,7 +154,7 @@ namespace CookConsumer{
             if (user == null)
             {
                 Console.WriteLine(" [!] User not found.");
-                return;
+                return -1;
             }
 
             var userRecipeEntity = new UserRecipe
@@ -198,14 +201,36 @@ namespace CookConsumer{
                     await dbContext.SaveChangesAsync();
                 }
 
-                // Try to parse the quantity (assumes the first token is a number).
                 decimal quantity = 0;
                 string measurementUnit = ingDto.ingredientQuantity;
+
+                // Extract the numeric part and convert it to a decimal
                 var tokens = ingDto.ingredientQuantity.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                if (tokens.Length > 0 && decimal.TryParse(tokens[0], out var parsedQuantity))
+                if (tokens.Length > 0)
                 {
-                    quantity = parsedQuantity;
-                    measurementUnit = string.Join(" ", tokens.Skip(1));
+                    string numericPart = tokens[0];
+
+                    if (tokens.Length > 1 && Regex.IsMatch(tokens[1], @"^\d+/\d+$")) 
+                    {
+                        // Handle mixed fraction (e.g., "1 1/2 cups")
+                        numericPart += " " + tokens[1]; // Combine the whole number and fraction
+                        measurementUnit = string.Join(" ", tokens.Skip(2)); // Rest is the unit
+                    }
+                    else
+                    {
+                        // Normal case where first token is the quantity, rest is unit
+                        measurementUnit = string.Join(" ", tokens.Skip(1));
+                    }
+
+                    // Convert numeric part to decimal
+                    if (FunctionHelpers.TryParseFraction(numericPart, out var parsedQuantity))
+                    {
+                        quantity = parsedQuantity;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning: Unable to parse quantity '{numericPart}'");
+                    }
                 }
 
                 var recipeIngredient = new RecipeIngredient
@@ -217,10 +242,27 @@ namespace CookConsumer{
                 };
 
                 dbContext.RecipeIngredients.Add(recipeIngredient);
+
+
             }
+
+            //foreach note in recipeMessage.RecipeNotes
+            if (recipeMessage.Recipe?.recipeNotes != null){
+                foreach (var note in recipeMessage.Recipe?.recipeNotes ?? new List<string>())
+                {
+                    var recipeNote = new RecipeNotes
+                    {
+                        UserId = recipeMessage?.Recipe?.userId ?? "",
+                        RecipeId = recipeEntity.RecipeId,
+                        Notes = note
+                    };
+                    dbContext.RecipeNotes.Add(recipeNote);
+                }
+            }           
 
             await dbContext.SaveChangesAsync();
             Console.WriteLine(" [x] Recipe and its details saved to the database.");
+            return recipeEntity.RecipeId;
         }
     }
 }

@@ -3,6 +3,7 @@ namespace CookConsumer
     public class RecipeReturnDto
     {
         public string? userId { get; set; }
+        public int? recipeId { get; set; }
         public string recipeName { get; set; } = "";
         public string recipeDescription { get; set; } = "";
         public string recipeType { get; set; } = "";

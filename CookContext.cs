@@ -21,6 +21,10 @@ namespace CookConsumer
         public DbSet<RecipeStep> RecipeSteps { get; set; }
         public DbSet<UserRecipe> UserRecipes { get; set; }
         public DbSet<RecipeRequest> RecipeRequests { get; set; }
+        public DbSet<RecipeNotes> RecipeNotes { get; set; }
+        public DbSet<RecipeRating> RecipeRatings { get; set; }
+        public DbSet<RecipeType> RecipeTypes { get; set; }
+        public DbSet<RecipeUsage> RecipeUsages { get; set; }
 
     }
 }

@@ -21,6 +21,8 @@ public class Recipe
     
     // Navigation properties:
     public ICollection<RecipeStep>? Steps { get; set; }
+    public ICollection<RecipeRating>? Ratings { get; set; }
+
     public ICollection<RecipeIngredient>? RecipeIngredients { get; set; }
 }
 
