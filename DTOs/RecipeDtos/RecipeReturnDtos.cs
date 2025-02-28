@@ -15,13 +15,15 @@ namespace CookConsumer
         public DateTime recipeCreatedDate { get; set; } = DateTime.Now;
         public List<IngredientDto> ingredients { get; set; } = new List<IngredientDto>();
         public List<RecipeStepDto> recipeSteps { get; set; } = new List<RecipeStepDto>();
+        public int servings { get; set; }
     }
 
     public class IngredientDto
     {
         public int ingredientId { get; set; }
         public string ingredientName { get; set; } = "";
-        public string ingredientQuantity { get; set; } = "";
+        public decimal ingredientQuantity { get; set; }
+        public string ingredientUnit { get; set; } = "";
     }
 
     public class NutritionDto
