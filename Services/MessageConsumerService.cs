@@ -32,7 +32,7 @@ namespace CookConsumer.Services
             };            using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
-            // Declare a topic exchange for recipes.
+            // Declare a topic exchange for recipes..
             string exchangeName = "recipe_exchange";
             await channel.ExchangeDeclareAsync(
                 exchange: exchangeName,
