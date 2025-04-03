@@ -32,5 +32,5 @@ jobs:
         REPOSITORY: quicklycook-consumer
         IMAGE_TAG: latest
       run: |
-        docker build -f QuicklyCook/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG QuicklyCook/
+        docker build -f Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
         docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
