@@ -4,3 +4,4 @@ publish/
 bin/
 *.dll
 obj/
+secret*

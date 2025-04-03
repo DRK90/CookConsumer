@@ -16,7 +16,14 @@ namespace CookConsumer.Services
 
         public async Task StoreRecipeAsync(RecipeReturnDto recipe)
         {
-            using var redis = await ConnectionMultiplexer.ConnectAsync(_connectionString);
+            var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
+            var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
+            var redisPass = Environment.GetEnvironmentVariable("REDIS_PASSWORD");
+
+            var options = ConfigurationOptions.Parse($"{redisHost}:{redisPort}");
+            options.Password = redisPass;
+
+            var redis = await ConnectionMultiplexer.ConnectAsync(options);
             var db = redis.GetDatabase();
             string recipeJson = JsonSerializer.Serialize(recipe);
             // Push to the left of the list.

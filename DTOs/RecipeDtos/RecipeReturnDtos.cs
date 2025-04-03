@@ -22,7 +22,7 @@ namespace CookConsumer
     {
         public int ingredientId { get; set; }
         public string ingredientName { get; set; } = "";
-        public decimal ingredientQuantity { get; set; }
+        public double? ingredientQuantity { get; set; }
         public string ingredientUnit { get; set; } = "";
     }
 

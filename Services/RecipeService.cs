@@ -94,7 +94,7 @@ namespace CookConsumer.Services
                     await dbContext.SaveChangesAsync();
                 }
                 
-                decimal quantity = Math.Round(ingDto.ingredientQuantity, 2);
+                double quantity = Math.Round((double)(ingDto.ingredientQuantity ?? 0), 2);
                 string measurementUnit = ingDto.ingredientUnit;
 
 
@@ -102,7 +102,7 @@ namespace CookConsumer.Services
                 {
                     RecipeId = recipeEntity.RecipeId,
                     IngredientId = ingredient.IngredientId,
-                    Quantity = quantity,
+                    Quantity = (decimal)quantity,
                     MeasurementUnit = measurementUnit
                 };
 

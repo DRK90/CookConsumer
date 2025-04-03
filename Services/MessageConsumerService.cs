@@ -23,8 +23,13 @@ namespace CookConsumer.Services
 
         public async Task StartConsumingAsync()
         {
-            var factory = new ConnectionFactory() { HostName = _config.RabbitMqHost };
-            using var connection = await factory.CreateConnectionAsync();
+            var factory = new ConnectionFactory()
+            {
+                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST"),
+                Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
+                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER"),
+                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")
+            };            using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
             // Declare a topic exchange for recipes.

@@ -1,0 +1,9 @@
+.git
+bin
+obj
+.vscode
+*.user
+*.suo
+*.pdb
+node_modules
+.env

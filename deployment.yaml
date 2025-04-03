@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quicklycook-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quicklycook-consumer
+  template:
+    metadata:
+      labels:
+        app: quicklycook-consumer
+    spec:
+      containers:
+      - name: quicklycook-consumer
+        image: 440744251863.dkr.ecr.us-east-1.amazonaws.com/quicklycook-consumer:latest
+        envFrom:
+        - secretRef:
+            name: quicklycook-secrets
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "256Mi"
