@@ -18,7 +18,7 @@ namespace CookConsumer.Services
         {
             var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
             var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
-            var redisPass = Environment.GetEnvironmentVariable("REDIS_PASSWORD");
+            var redisPass = Environment.GetEnvironmentVariable("REDIS_PASSWORD") ?? "5pdXlgnIhX";
 
             var options = ConfigurationOptions.Parse($"{redisHost}:{redisPort}");
             options.Password = redisPass;
