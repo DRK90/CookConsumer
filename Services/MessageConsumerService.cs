@@ -27,8 +27,8 @@ namespace CookConsumer.Services
             {
                 HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST"),
                 Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER"),
-                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD")
+                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "user",
+                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "changeme"
             };            using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
