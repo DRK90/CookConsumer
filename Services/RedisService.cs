@@ -16,7 +16,7 @@ namespace CookConsumer.Services
 
         public async Task StoreRecipeAsync(RecipeReturnDto recipe)
         {
-            var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST");
+            var redisHost = Environment.GetEnvironmentVariable("REDIS_HOST") ?? "localhost:6379";
             var redisPort = Environment.GetEnvironmentVariable("REDIS_PORT") ?? "6379";
             var redisPass = Environment.GetEnvironmentVariable("REDIS_PASSWORD") ?? "5pdXlgnIhX";
 

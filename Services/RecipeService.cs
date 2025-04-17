@@ -47,7 +47,7 @@ namespace CookConsumer.Services
             if (user == null)
             {
                 Console.WriteLine(" [!] User not found.");
-                return -1;
+                //return -1;
             }
 
             var userRecipeEntity = new UserRecipe
