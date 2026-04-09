@@ -23,30 +23,37 @@ namespace CookConsumer.Services
 
         public async Task StartConsumingAsync()
         {
-            var factory = new ConnectionFactory()
+            var factory = new ConnectionFactory
             {
-                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
-                Port = int.Parse(Environment.GetEnvironmentVariable("RABBITMQ_PORT") ?? "5672"),
-                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "user",
-                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "changeme"
-            };            using var connection = await factory.CreateConnectionAsync();
+                HostName = _config.RabbitMqHost,
+                Port = _config.RabbitMqPort,
+                UserName = _config.RabbitMqUser,
+                Password = _config.RabbitMqPassword
+            };
+            using var connection = await factory.CreateConnectionAsync();
             using var channel = await connection.CreateChannelAsync();
 
-            // Declare a topic exchange for recipes..
-            string exchangeName = "recipe_exchange";
+            const string exchangeName = "recipe_exchange";
+            const string queueName = "recipe_queue";
+
             await channel.ExchangeDeclareAsync(
                 exchange: exchangeName,
                 type: "topic",
-                durable: false,
+                durable: true,
                 autoDelete: false,
-                arguments: null
-            );
+                arguments: null);
 
-            // Declare a queue and bind it to the exchange using a wildcard routing key.
-            var queueName = await channel.QueueDeclareAsync();
-            await channel.QueueBindAsync(queue: queueName,
-                              exchange: exchangeName,
-                              routingKey: "recipe.*");
+            await channel.QueueDeclareAsync(
+                queue: queueName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false,
+                arguments: null);
+
+            await channel.QueueBindAsync(
+                queue: queueName,
+                exchange: exchangeName,
+                routingKey: "recipe.*");
 
             Console.WriteLine(" [*] Waiting for messages from RabbitMQ...");
             var consumer = new AsyncEventingBasicConsumer(channel);
@@ -120,8 +127,9 @@ namespace CookConsumer.Services
             await channel.BasicConsumeAsync(
                 queue: queueName,
                 autoAck: true,
-                consumer: consumer
-            );
+                consumer: consumer);
+
+            Console.WriteLine($" [*] Connected to RabbitMQ at {_config.RabbitMqHost}:{_config.RabbitMqPort}");
 
             // Keep the consumer running.
             await Task.Delay(Timeout.Infinite);

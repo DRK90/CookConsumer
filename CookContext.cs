@@ -7,9 +7,15 @@ namespace CookConsumer
 {
     public class CookContext : IdentityDbContext<ApplicationUser>
     {
-        public CookContext(DbContextOptions<CookContext> options) 
+        public CookContext(DbContextOptions<CookContext> options)
             : base(options)
         {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.HasDefaultSchema("quicklycook");
+            base.OnModelCreating(modelBuilder);
         }
 
         // Identity

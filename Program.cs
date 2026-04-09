@@ -9,6 +9,9 @@ namespace CookConsumer
     {
         static async Task Main(string[] args)
         {
+            // Npgsql: treat DateTime.Kind.Unspecified as UTC (consistent with prior MySQL behaviour)
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             // Load environment variables.
             Env.Load();
 

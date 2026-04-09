@@ -28,7 +28,8 @@ namespace CookConsumer.Services
             {
                 Title = dto.recipeName,
                 Description = dto.recipeDescription,
-                RecipeTypeId = dbContext.RecipeTypes.FirstOrDefault(rt => rt.RecipeTypeName == dto.recipeType)?.RecipeTypeId ?? 0,
+                RecipeTypeId = dbContext.RecipeTypes.FirstOrDefault(rt => rt.RecipeTypeName.ToLower() == (dto.recipeType ?? "").ToLower())?.RecipeTypeId
+                    ?? dbContext.RecipeTypes.FirstOrDefault(rt => rt.RecipeTypeName == "Other")?.RecipeTypeId ?? 0,
                 Servings = dto.servings,
                 PrepTime = TimeSpan.FromMinutes(dto.recipePrepTime ?? 0),
                 CookTime = TimeSpan.FromMinutes(dto.recipeCookTime ?? 0),
